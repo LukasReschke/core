@@ -31,6 +31,8 @@ class UpdaterLegacy extends \PHPUnit_Framework_TestCase {
 
 	private static $user;
 
+	private $userBackend;
+
 	public function setUp() {
 
 		// remember files_encryption state
@@ -56,10 +58,14 @@ class UpdaterLegacy extends \PHPUnit_Framework_TestCase {
 			self::$user = uniqid();
 		}
 
-		\OC_User::createUser(self::$user, 'password');
+		if (!$this->userBackend) {
+			$this->userBackend = new \OC_User_Dummy();
+			$this->userBackend->createUser(self::$user, 'foo');
+		}
+		\OC_User::useBackend($this->userBackend);
 		\OC_User::setUserId(self::$user);
 
-		\OC\Files\Filesystem::init(self::$user, '/' . self::$user . '/files');
+		\OC_Util::setupFS(self::$user);
 
 		Filesystem::clearMounts();
 		Filesystem::mount($this->storage, array(), '/' . self::$user . '/files');

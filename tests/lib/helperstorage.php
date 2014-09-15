@@ -19,7 +19,7 @@ class Test_Helper_Storage extends PHPUnit_Framework_TestCase {
 
 		\OC\Files\Filesystem::tearDown();
 		\OC_User::setUserId($this->user);
-		\OC\Files\Filesystem::init($this->user, '/' . $this->user . '/files');
+		\OC_Util::setupFS($this->user);
 		\OC\Files\Filesystem::clearMounts();
 
 		$this->storageMock = null;

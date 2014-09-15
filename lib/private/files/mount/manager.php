@@ -25,6 +25,14 @@ class Manager {
 
 	/**
 	 * @param string $mountPoint
+	 * @return Mount
+	 */
+	public function getMount($mountPoint) {
+		return isset($this->mounts[$mountPoint]) ? $this->mounts[$mountPoint] : null;
+	}
+
+	/**
+	 * @param string $mountPoint
 	 */
 	public function removeMount($mountPoint) {
 		$mountPoint = Filesystem::normalizePath($mountPoint);
@@ -38,7 +46,7 @@ class Manager {
 	 * @param string $mountPoint
 	 * @param string $target
 	 */
-	public function moveMount($mountPoint, $target){
+	public function moveMount($mountPoint, $target) {
 		$this->mounts[$target] = $this->mounts[$mountPoint];
 		unset($this->mounts[$mountPoint]);
 	}
@@ -50,7 +58,6 @@ class Manager {
 	 * @return Mount
 	 */
 	public function find($path) {
-		\OC_Util::setupFS();
 		$path = $this->formatPath($path);
 		if (isset($this->mounts[$path])) {
 			return $this->mounts[$path];
@@ -78,7 +85,6 @@ class Manager {
 	 * @return Mount[]
 	 */
 	public function findIn($path) {
-		\OC_Util::setupFS();
 		$path = $this->formatPath($path);
 		$result = array();
 		$pathLength = strlen($path);
@@ -102,7 +108,6 @@ class Manager {
 	 * @return Mount[]
 	 */
 	public function findByStorageId($id) {
-		\OC_Util::setupFS();
 		if (strlen($id) > 64) {
 			$id = md5($id);
 		}

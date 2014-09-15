@@ -88,7 +88,7 @@ function removeSharedFolder($mkdirs = true, $chunkSize = 99) {
 
 		if ($mkdirs) {
 			foreach ($unique_users as $user) {
-				\OC\Files\Filesystem::initMountPoints($user);
+				\OC::$server->setupFilesystem($user);
 				if (!$view->file_exists('/' . $user . '/files/Shared')) {
 					$view->mkdir('/' . $user . '/files/Shared');
 				}

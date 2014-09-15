@@ -80,15 +80,23 @@ class Server extends SimpleContainer implements IServerContainer {
 			$user = \OC_User::getUser();
 			return new TagManager($tagMapper, $user);
 		});
+		$this->registerService('FilesystemFactory', function ($c) {
+			/** * @var Server $c */
+			\OC_App::loadApps(array('filesystem'));
+			$config = $c->getConfig();
+			if ($config->getSystemValue('objectstore', false)) {
+				return new \OC\Files\ObjectStoreFactory($config);
+			} else {
+				return new \OC\Files\Factory($config);
+			}
+		});
 		$this->registerService('RootFolder', function ($c) {
-			// TODO: get user and user manager from container as well
-			$user = \OC_User::getUser();
-			/** @var $c SimpleContainer */
-			$userManager = $c->query('UserManager');
-			$user = $userManager->get($user);
-			$manager = \OC\Files\Filesystem::getMountManager();
-			$view = new View();
-			return new Root($manager, $view, $user);
+			/** * @var Server $c */
+			$userSession = $c->getUserSession();
+			$user = $userSession->getUser();
+			$factory = $c->getFilesystemFactory();
+			\OC\Files\Filesystem::$activeUser = $user;
+			return $factory->createRoot();
 		});
 		$this->registerService('UserManager', function ($c) {
 			/**
@@ -288,12 +296,36 @@ class Server extends SimpleContainer implements IServerContainer {
 	}
 
 	/**
+	 * Returns filesystem factory
+	 *
+	 * @return \OC\Files\Factory
+	 */
+	function getFilesystemFactory() {
+		return $this->query('FilesystemFactory');
+	}
+
+	/**
 	 * Returns the root folder of ownCloud's data directory
 	 *
 	 * @return \OCP\Files\Folder
 	 */
 	function getRootFolder() {
 		return $this->query('RootFolder');
+	}
+
+	/**
+	 * Setup the filesystem for a user
+	 *
+	 * @param string $userId
+	 */
+	function setupFilesystem($userId) {
+		/** @var \OC\Files\Node\Root $root */
+		$root = $this->getRootFolder();
+		$user = $this->getUserManager()->get($userId);
+		if ($user) {
+			$factory = \OC::$server->getFilesystemFactory();
+			$factory->setupForUser($root, $user);
+		}
 	}
 
 	/**

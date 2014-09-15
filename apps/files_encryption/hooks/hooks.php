@@ -233,7 +233,7 @@ class Hooks {
 					$newUserPassword = $params['password'];
 
 					// make sure that the users home is mounted
-					\OC\Files\Filesystem::initMountPoints($user);
+					\OC::$server->setupFilesystem($user);
 
 					$keypair = Crypt::createKeypair();
 
