@@ -41,6 +41,8 @@ class Filesystem {
 	 */
 	static public $activeUser;
 
+	static public $loaded;
+
 	/**
 	 * classname which used for hooks handling
 	 * used as signalclass in OC_Hooks::emit()

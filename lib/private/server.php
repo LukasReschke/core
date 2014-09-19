@@ -96,6 +96,7 @@ class Server extends SimpleContainer implements IServerContainer {
 			$user = $userSession->getUser();
 			$factory = $c->getFilesystemFactory();
 			\OC\Files\Filesystem::$activeUser = $user;
+			\OC\Files\Filesystem::$loaded = true;
 			return $factory->createRoot();
 		});
 		$this->registerService('UserManager', function ($c) {
