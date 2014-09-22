@@ -116,7 +116,7 @@ class Mapper
 	/**
 	 * @param string $logicPath
 	 */
-	private function resolveLogicPath($logicPath) {
+	protected function resolveLogicPath($logicPath) {
 		$logicPath = $this->resolveRelativePath($logicPath);
 		$sql = 'SELECT * FROM `*PREFIX*file_map` WHERE `logic_path_hash` = ?';
 		$result = \OC_DB::executeAudited($sql, array(md5($logicPath)));
@@ -128,7 +128,7 @@ class Mapper
 		return $result['physic_path'];
 	}
 
-	private function resolvePhysicalPath($physicalPath) {
+	protected function resolvePhysicalPath($physicalPath) {
 		$physicalPath = $this->resolveRelativePath($physicalPath);
 		$sql = \OC_DB::prepare('SELECT * FROM `*PREFIX*file_map` WHERE `physic_path_hash` = ?');
 		$result = \OC_DB::executeAudited($sql, array(md5($physicalPath)));
@@ -137,7 +137,7 @@ class Mapper
 		return $result['logic_path'];
 	}
 
-	private function resolveRelativePath($path) {
+	protected function resolveRelativePath($path) {
 		$explodedPath = explode('/', $path);
 		$pathArray = array();
 		foreach ($explodedPath as $pathElement) {
@@ -160,23 +160,34 @@ class Mapper
 		return $path.implode('/', $pathArray);
 	}
 
-	/**
-	 * @param string $logicPath
-	 * @param boolean $store
-	 */
-	private function create($logicPath, $store) {
+	protected function create($logicPath, $store) {
 		$logicPath = $this->resolveRelativePath($logicPath);
-		$index = 0;
 
-		// create the slugified path
-		$physicalPath = $this->slugifyPath($logicPath);
-
-		// detect duplicates
-		while ($this->resolvePhysicalPath($physicalPath) !== null) {
-			$physicalPath = $this->slugifyPath($logicPath, $index++);
+		if ($logicPath === $this->unchangedPhysicalRoot ||
+			$logicPath . '/' === $this->unchangedPhysicalRoot) {
+			// If the path is the physical root, we are done with the recursion
+			return rtrim($logicPath, '/');
 		}
 
-		// insert the new path mapping if requested
+		$resolvedLogicPath = $this->resolveLogicPath($logicPath);
+		if ($resolvedLogicPath !== null) {
+			// If the path has a mapper entry, we are done with the recursion
+			return $resolvedLogicPath;
+		}
+
+		// Didn't find the path so we use the parentPath and append the slugified fileName
+		$physicalParentPath = $this->create(dirname($logicPath), $store);
+		$logicFileName = basename($logicPath);
+		$slugifiedLogicFileName = $this->slugify($logicFileName);
+
+		// Detect duplicate fileNames after they have been slugified
+		$index = 0;
+		$physicalPath = $physicalParentPath . '/' . $slugifiedLogicFileName;
+		while ($this->resolvePhysicalPath($physicalPath) !== null) {
+			$physicalPath = $physicalParentPath . '/' . $this->addIndexToFilename($slugifiedLogicFileName, $index++);
+		}
+
+		// Insert the new path mapping if requested
 		if ($store) {
 			$this->insert($logicPath, $physicalPath);
 		}
@@ -184,45 +195,31 @@ class Mapper
 		return $physicalPath;
 	}
 
-	private function insert($logicPath, $physicalPath) {
+	protected function insert($logicPath, $physicalPath) {
 		$sql = 'INSERT INTO `*PREFIX*file_map` (`logic_path`, `physic_path`, `logic_path_hash`, `physic_path_hash`)
 				VALUES (?, ?, ?, ?)';
 		\OC_DB::executeAudited($sql, array($logicPath, $physicalPath, md5($logicPath), md5($physicalPath)));
 	}
 
 	/**
-	 * @param integer $index
+	 * @param string $fileName
+	 * @param int $index
+	 * @return string
 	 */
-	public function slugifyPath($path, $index = null) {
-		$path = $this->stripRootFolder($path, $this->unchangedPhysicalRoot);
-
-		$pathElements = explode('/', $path);
-		$sluggedElements = array();
-
-		foreach ($pathElements as $pathElement) {
-			// remove empty elements
-			if (empty($pathElement)) {
-				continue;
-			}
-
-			$sluggedElements[] = self::slugify($pathElement);
+	public function addIndexToFilename($fileName, $index = 0) {
+		if (!$index) {
+			return $fileName;
 		}
 
-		// apply index to file name
-		if ($index !== null) {
-			$last = array_pop($sluggedElements);
-			
-			// if filename contains periods - add index number before last period
-			if (preg_match('~\.[^\.]+$~i', $last, $extension)) {
-				array_push($sluggedElements, substr($last, 0, -(strlen($extension[0]))) . '-' . $index . $extension[0]);
-			} else {
-				// if filename doesn't contain periods add index ofter the last char
-				array_push($sluggedElements, $last . '-' . $index);
-			}
+		// if filename contains periods - add index number before last period
+		if (preg_match('~\.[^\.]+$~i', $fileName, $extension)) {
+			$fileName = substr($fileName, 0, -(strlen($extension[0]))) . '-' . $index . $extension[0];
+		} else {
+			// if filename doesn't contain periods add index after the last char
+			$fileName .= '-' . $index;
 		}
 
-		$sluggedPath = $this->unchangedPhysicalRoot.implode('/', $sluggedElements);
-		return $this->resolveRelativePath($sluggedPath);
+		return $fileName;
 	}
 
 	/**
@@ -231,7 +228,7 @@ class Mapper
 	 * @param string $text
 	 * @return string
 	 */
-	private function slugify($text) {
+	public function slugify($text) {
 		$originalText = $text;
 		// replace non letter or digits or dots by -
 		$text = preg_replace('~[^\\pL\d\.]+~u', '-', $text);
