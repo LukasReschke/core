@@ -124,7 +124,7 @@ class ShareControllerTest extends \PHPUnit_Framework_TestCase {
 			'displayName' => $this->user,
 			'filename' => 'file1.txt',
 			'directory_path' => '/file1.txt',
-			'mimetype' => false,
+			'mimetype' => 'text/plain',
 			'dirToken' => $this->token,
 			'sharingToken' => $this->token,
 			'server2serversharing' => true,
