@@ -1,5 +1,6 @@
 OC.L10N.register(
-   'files_encryption', {
+    "files_encryption",
+    {
     "Unknown error" : "Unbekannter Fehler",
     "Missing recovery key password" : "Schlüsselpasswort zur Wiederherstellung fehlt",
     "Please repeat the recovery key password" : "Schlüsselpasswort zur Wiederherstellung bitte wiederholen",
@@ -46,5 +47,5 @@ OC.L10N.register(
     "Update Private Key Password" : "Passwort für den privaten Schlüssel aktualisieren",
     "Enable password recovery:" : "Passwortwiederherstellung aktivieren:",
     "Enabling this option will allow you to reobtain access to your encrypted files in case of password loss" : "Wenn Du diese Option aktivierst, kannst Du Deine verschlüsselten Dateien wiederherstellen, falls Du Dein Passwort vergisst"
-}, "nplurals=2; plural=(n != 1);"
-);
+},
+"nplurals=2; plural=(n != 1);");
