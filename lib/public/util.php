@@ -142,7 +142,7 @@ class Util {
 	 * @param string $languageCode language code, defaults to the current locale
 	 */
 	public static function addTranslations($application, $languageCode = null) {
-		\OC_Util::addTranslations($application, $file);
+		\OC_Util::addTranslations($application, $languageCode);
 	}
 
 	/**
