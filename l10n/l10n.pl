@@ -184,9 +184,9 @@ elsif( $task eq 'write' ){
 			close( OUT );
 
 			open( OUT, ">$language.js" );
-			print OUT "OC_L10N = {$language: {\n    ";
+			print OUT "OC.L10N.register(\n    \"$app\",\n    {\n    ";
 			print OUT join( ",\n    ", @js_strings );
-			print OUT "\n},\nPLURAL_FORMS : \"$plurals\"};\n";
+			print OUT "\n},\n\"$plurals\");\n";
 			close( OUT );
 
 		}
