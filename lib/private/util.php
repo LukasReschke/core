@@ -355,7 +355,7 @@ class OC_Util {
 		if (!empty($application)) {
 			self::$scripts[] = "$application/l10n/$languageCode";
 		} else {
-			self::$scripts[] = "js/$languageCode";
+			self::$scripts[] = "l10n/$languageCode";
 		}
 	}
 
