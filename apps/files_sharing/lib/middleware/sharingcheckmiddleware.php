@@ -42,7 +42,7 @@ class SharingCheckMiddleware extends Middleware {
 	 * Check if sharing is enabled before the controllers is executed
 	 * FIXME: Show 404 or redirect instead of stopping the application's execution
 	 */
-	public function beforeController() {
+	public function beforeController($controller, $methodName) {
 		if(!$this->isSharingEnabled()) {
 			exit();
 		}
