@@ -446,8 +446,6 @@ class OC {
 		// register autoloader
 		require_once __DIR__ . '/autoloader.php';
 		self::$loader = new \OC\Autoloader();
-		self::$loader->registerPrefix('Doctrine\\Common', 'doctrine/common/lib');
-		self::$loader->registerPrefix('Doctrine\\DBAL', 'doctrine/dbal/lib');
 		self::$loader->registerPrefix('Symfony\\Component\\Routing', 'symfony/routing');
 		self::$loader->registerPrefix('Symfony\\Component\\Console', 'symfony/console');
 		self::$loader->registerPrefix('Patchwork', '3rdparty');
