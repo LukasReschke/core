@@ -30,6 +30,8 @@ class ShareControllerTest extends \PHPUnit_Framework_TestCase {
 	private $user;
 	/** @var string */
 	private $token;
+	/** @var string */
+	private $oldUser;
 
 	protected function setUp() {
 		$app = new Application();
@@ -42,10 +44,16 @@ class ShareControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->container['URLGenerator'] = $this->getMockBuilder('\OC\URLGenerator')
 			->disableOriginalConstructor()->getMock();
 
+		// Store current user
+		$this->oldUser = \OC_User::getUser();
+
 		// Create a dummy user
 		$this->user = \OC::$server->getSecureRandom()->getLowStrengthGenerator()->generate(12, ISecureRandom::CHAR_LOWER);
-		\OC_User::createUser($this->user, $this->user);
 
+		\OC_User::createUser($this->user, $this->user);
+		\OC_Util::tearDownFS();
+		\OC_User::setUserId('');
+		Filesystem::tearDown();
 		\OC_User::setUserId($this->user);
 		\OC_Util::setupFS($this->user);
 
@@ -65,6 +73,10 @@ class ShareControllerTest extends \PHPUnit_Framework_TestCase {
 		\OC_User::setUserId('');
 		Filesystem::tearDown();
 		\OC_User::deleteUser($this->user);
+
+		// Set old user
+		\OC_User::setUserId($this->oldUser);
+		\OC_Util::setupFS($this->oldUser);
 	}
 
 	public function testShowAuthenticate() {
