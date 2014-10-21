@@ -103,28 +103,6 @@ class OC_Util {
 	}
 
 	/**
-	 * copies the skeleton to the users /files
-	 *
-	 * @param \OC\User\User $user
-	 * @param \OCP\Files\Folder $userDirectory
-	 */
-	public static function copySkeleton(\OC\User\User $user, \OCP\Files\Folder $userDirectory) {
-
-		$skeletonDirectory = \OCP\Config::getSystemValue('skeletondirectory', \OC::$SERVERROOT . '/core/skeleton');
-
-		if (!empty($skeletonDirectory)) {
-			\OCP\Util::writeLog(
-				'files_skeleton',
-				'copying skeleton for '.$user->getUID().' from '.$skeletonDirectory.' to '.$userDirectory->getFullPath('/'),
-				\OCP\Util::DEBUG
-			);
-			self::copyr($skeletonDirectory, $userDirectory);
-			// update the file cache
-			$userDirectory->getStorage()->getScanner()->scan('', \OC\Files\Cache\Scanner::SCAN_RECURSIVE);
-		}
-	}
-
-	/**
 	 * copies a directory recursively by using streams
 	 *
 	 * @param string $source

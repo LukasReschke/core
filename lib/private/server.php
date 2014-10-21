@@ -365,7 +365,8 @@ class Server extends SimpleContainer implements IServerContainer {
 				\OC_FileProxy::$enabled = false;
 			}
 
-			\OC_Util::copySkeleton($user, $folder);
+			$factory = $this->getFilesystemFactory();
+			$factory->copySkeleton($user, $folder);
 
 			if (\OCP\App::isEnabled('files_encryption')) {
 				// re-enable proxy - our work is done

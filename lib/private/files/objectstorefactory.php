@@ -52,11 +52,4 @@ class ObjectStoreFactory extends Factory {
 		$mount = new Mount\Mount('\OC\Files\ObjectStore\HomeObjectStoreStorage', '/' . $user->getUID(), $config['arguments'], $storageLoader);
 		$mountManager->addMount($mount);
 	}
-
-	/**
-	 * @param \OCP\IUser $user
-	 */
-	protected function copySkeleton($user) {
-		// object store currently copies the skeleton somewhere else
-	}
 }

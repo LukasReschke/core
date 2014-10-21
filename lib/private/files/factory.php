@@ -8,6 +8,7 @@
 
 namespace OC\Files;
 
+use OC\Files\Cache\Scanner;
 use OC\Files\Mount\Manager;
 use OC\Files\Node\Root;
 use OC\Files\Storage\Loader;
@@ -81,15 +82,22 @@ class Factory {
 
 	/**
 	 * @param \OCP\IUser $user
+	 * @param \OCP\Files\Folder $userDirectory
 	 */
-	protected function copySkeleton($user) {
-		$userDirectory = $user->getHome() . '/files';
-		if (!is_dir($userDirectory)) {
-			mkdir($userDirectory, 0755, true);
-			$skeletonDirectory = $this->config->getSystemValue('skeletondirectory', \OC::$SERVERROOT . '/core/skeleton');
-			if (!empty($skeletonDirectory)) {
-				\OC_Util::copyr($skeletonDirectory, $userDirectory);
-			}
+	public function copySkeleton(\OCP\IUser $user, \OCP\Files\Folder $userDirectory) {
+		$skeletonDirectory = \OCP\Config::getSystemValue('skeletondirectory', \OC::$SERVERROOT . '/core/skeleton');
+
+		if (!empty($skeletonDirectory)) {
+			\OCP\Util::writeLog(
+				'files_skeleton',
+				'copying skeleton for ' . $user->getUID() . ' from ' . $skeletonDirectory . ' to ' . $userDirectory->getFullPath('/'),
+				\OCP\Util::DEBUG
+			);
+			\OC_Util::copyr($skeletonDirectory, $userDirectory);
+			// update the file cache
+			/** @var \OC\Files\Storage\Storage $storage */
+			$storage = $userDirectory->getStorage();
+			$storage->getScanner()->scan('', Scanner::SCAN_RECURSIVE);
 		}
 	}
 
@@ -141,8 +149,6 @@ class Factory {
 			$this->mountUserFolder($mountManager, $storageLoader, $user);
 			$this->mountCacheDir($mountManager, $storageLoader, $user);
 			\OC_Hook::emit('OC_Filesystem', 'post_initMountPoints', array('user' => $user->getUID(), 'user_dir' => $user->getHome()));
-
-			$this->copySkeleton($user);
 
 			\OC_Hook::emit('OC_Filesystem', 'setup', array('user' => $user->getUID(), 'user_dir' => $user->getHome() . '/files'));
 			\OC::$server->getEventLogger()->end('setup_fs_' . $user->getUID());
