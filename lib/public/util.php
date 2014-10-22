@@ -353,11 +353,17 @@ class Util {
 	}
 
 	/**
-	 * Register an get/post call. This is important to prevent CSRF attacks
-	 * TODO: write example
-	 */
+	 * Register an get/post call. Important to prevent CSRF attacks.
+	 *
+	 * @return string Generated token.
+	 * @description
+	 * Creates a 'request token' (random) and stores it inside the session.
+	 * Ever subsequent (ajax) request must use such a valid token to succeed,
+	 * otherwise the request will be denied as a protection against CSRF.
+	 * @see OC_Util::isCallRegistered()
+	 * @Deprecated Use \OC::$server->getCSRFHelper->getToken() instead */
 	public static function callRegister() {
-		return(\OC_Util::callRegister());
+		return \OC::$server->getCSRFHelper()->getToken();
 	}
 
 	/**
