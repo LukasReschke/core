@@ -15,11 +15,11 @@ use OC\Security\CSRFHelper;
  */
 class CSRFHelperTest extends \PHPUnit_Framework_TestCase {
 
-	/** @var CSRFHelper */
+	/** @var CSRFHelper|object */
 	protected $csrfHelper;
-	/** @var ISession */
+	/** @var ISession|object */
 	protected $session;
-	/** @var SecureRandom */
+	/** @var SecureRandom|object */
 	protected $secureRandom;
 
 	protected function setUp() {

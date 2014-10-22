@@ -10,7 +10,6 @@ namespace OC\Security;
 
 use OCP\ISession;
 use OCP\Security\ISecureRandom;
-use OCP\Security\StringUtils;
 
 /**
  * Class CSRFHelper provides a simple helper around ownCloud's CSRF protection.
