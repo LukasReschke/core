@@ -211,6 +211,7 @@ class ShareController extends Controller {
 	/**
 	 * @PublicPage
 	 * @NoCSRFRequired
+	 * @UseSession
 	 * @param string $token
 	 * @param string $files
 	 * @param string $path
