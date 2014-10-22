@@ -164,9 +164,10 @@ class Mapper
 		$logicPath = $this->resolveRelativePath($logicPath);
 
 		if ($logicPath === $this->unchangedPhysicalRoot ||
-			$logicPath . '/' === $this->unchangedPhysicalRoot) {
+			$logicPath . '/' === $this->unchangedPhysicalRoot ||
+			$logicPath . '\\' === $this->unchangedPhysicalRoot) {
 			// If the path is the physical root, we are done with the recursion
-			return rtrim($logicPath, '/');
+			return rtrim($logicPath, '/\\');
 		}
 
 		$resolvedLogicPath = $this->resolveLogicPath($logicPath);
