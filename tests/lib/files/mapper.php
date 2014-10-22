@@ -33,13 +33,6 @@ class Mapper extends \PHPUnit_Framework_TestCase {
 		$this->mapper = new \OC\Files\Mapper('D:/');
 	}
 
-	/**
-	 * @dataProvider slugifyPathData
-	 */
-	public function testSlugifyPath($slug, $path, $index = null) {
-		$this->assertEquals($slug, $this->mapper->slugifyPath($path, $index));
-	}
-
 	public function slugifyData() {
 		return array(
 			array('text.txt', 'text.txt'),
