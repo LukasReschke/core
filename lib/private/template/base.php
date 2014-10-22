@@ -16,6 +16,7 @@ class Base {
 
 	/**
 	 * @param string $template
+	 * @param string $requesttoken
 	 * @param \OC_L10N $l10n
 	 * @param \OC_Defaults $theme
 	 */

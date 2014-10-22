@@ -24,13 +24,13 @@
 
 namespace OC\AppFramework\Http;
 
+use OC\Security\CSRFHelper;
 use OCP\IRequest;
 
 /**
  * Class for accessing variables in the request.
  * This class provides an immutable object with request variables.
  */
-
 class Request implements \ArrayAccess, \Countable, IRequest {
 
 	protected $inputStream;
@@ -46,8 +46,9 @@ class Request implements \ArrayAccess, \Countable, IRequest {
 		'urlParams',
 		'parameters',
 		'method',
-		'requesttoken',
 	);
+	/** @var CSRFHelper */
+	protected $csrfHelper;
 
 	/**
 	 * @param array $vars An associative array with the following optional values:
@@ -59,13 +60,14 @@ class Request implements \ArrayAccess, \Countable, IRequest {
 	 * @param array 'env' the $_ENV array
 	 * @param array 'cookies' the $_COOKIE array
 	 * @param string 'method' the request method (GET, POST etc)
-	 * @param string|false 'requesttoken' the requesttoken or false when not available
+	 * @param CSRFHelper $csrfHelper
 	 * @see http://www.php.net/manual/en/reserved.variables.php
 	 */
-	public function __construct(array $vars=array(), $stream='php://input') {
+	public function __construct(array $vars=array(), $stream='php://input', CSRFHelper $csrfHelper) {
 
 		$this->inputStream = $stream;
 		$this->items['params'] = array();
+		$this->csrfHelper = $csrfHelper;
 
 		if(!array_key_exists('method', $vars)) {
 			$vars['method'] = 'GET';			
@@ -353,10 +355,6 @@ class Request implements \ArrayAccess, \Countable, IRequest {
 	 * @see OC_Util::callRegister()
 	 */
 	public function passesCSRFCheck() {
-		if($this->items['requesttoken'] === false) {
-			return false;
-		}
-
 		if (isset($this->items['get']['requesttoken'])) {
 			$token = $this->items['get']['requesttoken'];
 		} elseif (isset($this->items['post']['requesttoken'])) {
@@ -369,11 +367,5 @@ class Request implements \ArrayAccess, \Countable, IRequest {
 		}
 
 		// Check if the token is valid
-		if($token !== $this->items['requesttoken']) {
-			// Not valid
-			return false;
-		} else {
-			// Valid token
-			return true;
-		}
+		return $this->csrfHelper->verify($token);
 	}}

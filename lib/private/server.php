@@ -14,8 +14,10 @@ use OC\DB\ConnectionWrapper;
 use OC\Files\Node\Root;
 use OC\Files\View;
 use OC\Security\Crypto;
+use OC\Security\CSRFHelper;
 use OC\Security\SecureRandom;
 use OC\Diagnostics\NullEventLogger;
+use OCP\IContainer;
 use OCP\IServerContainer;
 use OCP\ISession;
 use OC\Tagging\TagMapper;
@@ -32,17 +34,11 @@ class Server extends SimpleContainer implements IServerContainer {
 		$this->registerService('ContactsManager', function ($c) {
 			return new ContactsManager();
 		});
-		$this->registerService('Request', function ($c) {
+		$this->registerService('Request', function (Server $c) {
 			if (isset($c['urlParams'])) {
 				$urlParams = $c['urlParams'];
 			} else {
 				$urlParams = array();
-			}
-
-			if (\OC::$server->getSession()->exists('requesttoken')) {
-				$requestToken = \OC::$server->getSession()->get('requesttoken');
-			} else {
-				$requestToken = false;
 			}
 
 			if (defined('PHPUNIT_RUN') && PHPUNIT_RUN
@@ -65,17 +61,17 @@ class Server extends SimpleContainer implements IServerContainer {
 						? $_SERVER['REQUEST_METHOD']
 						: null,
 					'urlParams' => $urlParams,
-					'requesttoken' => $requestToken,
-				), $stream
+				), $stream,
+				$c->getCSRFHelper()
 			);
 		});
 		$this->registerService('PreviewManager', function ($c) {
 			return new PreviewManager();
 		});
-		$this->registerService('TagMapper', function($c) {
+		$this->registerService('TagMapper', function(Server $c) {
 			return new TagMapper($c->getDb());
 		});
-		$this->registerService('TagManager', function ($c) {
+		$this->registerService('TagManager', function (Server $c) {
 			$tagMapper = $c->query('TagMapper');
 			$user = \OC_User::getUser();
 			return new TagManager($tagMapper, $user);
@@ -220,9 +216,12 @@ class Server extends SimpleContainer implements IServerContainer {
 		$this->registerService('Db', function ($c) {
 			return new Db();
 		});
-		$this->registerService('HTTPHelper', function (SimpleContainer $c) {
+		$this->registerService('HTTPHelper', function (Server $c) {
 			$config = $c->query('AllConfig');
 			return new HTTPHelper($config);
+		});
+		$this->registerService('CSRFHelper', function (Server $c) {
+			return new CSRFHelper($c->getSession(), $c->getSecureRandom());
 		});
 		$this->registerService('EventLogger', function ($c) {
 			/** @var Server $c */
@@ -551,6 +550,15 @@ class Server extends SimpleContainer implements IServerContainer {
 	 */
 	function getHTTPHelper() {
 		return $this->query('HTTPHelper');
+	}
+
+	/**
+	 * Returns an instance of the CSRF helper
+	 *
+	 * @return \OC\Security\CSRFHelper
+	 */
+	function getCSRFHelper() {
+		return $this->query('CSRFHelper');
 	}
 
 	/**

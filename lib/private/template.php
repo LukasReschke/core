@@ -37,7 +37,7 @@ class OC_Template extends \OC\Template\Base {
 	 * @param string $app app providing the template
 	 * @param string $name of the template file (without suffix)
 	 * @param string $renderas = ""; produce a full page
-	 * @param bool $registerCall = true
+	 * @param bool $registerCall DEPRECATED since ownCloud 8
 	 * @return OC_Template object
 	 *
 	 * This function creates an OC_Template object.
@@ -46,14 +46,12 @@ class OC_Template extends \OC\Template\Base {
 	 * according layout. For now, renderas can be set to "guest", "user" or
 	 * "admin".
 	 */
-	public function __construct( $app, $name, $renderas = "", $registerCall = true ) {
+	public function __construct( $app, $name, $renderas = "", $registerCall = null) {
 		// Read the selected theme from the config file
 		$theme = OC_Util::getTheme();
 
 		// Read the detected formfactor and use the right file name.
 		$fext = self::getFormFactorExtension();
-
-		$requesttoken = (OC::$server->getSession() and $registerCall) ? OC_Util::callRegister() : '';
 
 		$parts = explode('/', $app); // fix translation when app is something like core/lostpassword
 		$l10n = \OC::$server->getL10N($parts[0]);
@@ -66,7 +64,7 @@ class OC_Template extends \OC\Template\Base {
 		$this->path = $path;
 		$this->app = $app;
 
-		parent::__construct($template, $requesttoken, $l10n, $themeDefaults);
+		parent::__construct($template, \OC::$server->getCSRFHelper()->getToken(), $l10n, $themeDefaults);
 	}
 
 	/**

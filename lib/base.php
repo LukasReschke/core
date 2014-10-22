@@ -423,6 +423,9 @@ class OC {
 		}
 
 		$session->set('LAST_ACTIVITY', time());
+
+		// Register for CSRF token
+		\OC::$server->getCSRFHelper()->register();
 	}
 
 	/**
