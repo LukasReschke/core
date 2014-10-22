@@ -149,6 +149,9 @@ class Mapper
 				}
 				array_pop($pathArray);
 			} else {
+				if (substr($pathElement, -2) === '\\.') {
+					$pathElement = substr($pathElement, 0, -2);
+				}
 				array_push($pathArray, $pathElement);
 			}
 		}
