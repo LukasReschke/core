@@ -61,8 +61,7 @@ class Server extends SimpleContainer implements IServerContainer {
 						? $_SERVER['REQUEST_METHOD']
 						: null,
 					'urlParams' => $urlParams,
-				), $stream,
-				$c->getCSRFHelper()
+				), $stream
 			);
 		});
 		$this->registerService('PreviewManager', function ($c) {

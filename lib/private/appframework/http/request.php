@@ -60,14 +60,13 @@ class Request implements \ArrayAccess, \Countable, IRequest {
 	 * @param array 'env' the $_ENV array
 	 * @param array 'cookies' the $_COOKIE array
 	 * @param string 'method' the request method (GET, POST etc)
-	 * @param CSRFHelper $csrfHelper
 	 * @see http://www.php.net/manual/en/reserved.variables.php
 	 */
-	public function __construct(array $vars=array(), $stream='php://input', CSRFHelper $csrfHelper) {
+	public function __construct(array $vars=array(), $stream='php://input') {
 
 		$this->inputStream = $stream;
 		$this->items['params'] = array();
-		$this->csrfHelper = $csrfHelper;
+		$this->csrfHelper = \OC::$server->getCSRFHelper();
 
 		if(!array_key_exists('method', $vars)) {
 			$vars['method'] = 'GET';			
