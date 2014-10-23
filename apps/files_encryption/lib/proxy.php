@@ -352,6 +352,14 @@ class Proxy extends \OC_FileProxy {
 			\OC_FileProxy::$enabled = false;
 			$fileInfo = $view->getFileInfo($path);
 			\OC_FileProxy::$enabled = $proxyState;
+		} elseif (empty($fileInfo) && Helper::isPartialFilePath($path)) {
+			// if it is a part file we try to get the fileinfo from the real file
+			$realPath = Helper::stripPartialFileExtension($path);
+			if ($view->file_exists($realPath)) {
+				\OC_FileProxy::$enabled = false;
+				$fileInfo = $view->getFileInfo($realPath);
+				\OC_FileProxy::$enabled = $proxyState;
+			}
 		}
 
 		// if file is encrypted return real file size
