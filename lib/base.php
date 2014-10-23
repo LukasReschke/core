@@ -451,7 +451,6 @@ class OC {
 		self::$loader->registerPrefix('Doctrine\\DBAL', 'doctrine/dbal/lib');
 		self::$loader->registerPrefix('Symfony\\Component\\Routing', 'symfony/routing');
 		self::$loader->registerPrefix('Symfony\\Component\\Console', 'symfony/console');
-		self::$loader->registerPrefix('Patchwork', '3rdparty');
 		self::$loader->registerPrefix('Pimple', '3rdparty/Pimple');
 		spl_autoload_register(array(self::$loader, 'load'));
 		$loaderEnd = microtime(true);
@@ -494,14 +493,13 @@ class OC {
 		self::handleAuthHeaders();
 		self::registerAutoloaderCache();
 
-
-		OC_Util::isSetLocaleWorking();
-
 		// setup 3rdparty autoloader
 		$vendorAutoLoad = OC::$THIRDPARTYROOT . '/3rdparty/autoload.php';
 		if (file_exists($vendorAutoLoad)) {
 			require_once $vendorAutoLoad;
 		}
+
+		OC_Util::isSetLocaleWorking();
 
 		// initialize intl fallback is necessary
 		\Patchwork\Utf8\Bootup::initIntl();
@@ -522,7 +520,6 @@ class OC {
 		stream_wrapper_register('close', 'OC\Files\Stream\Close');
 		stream_wrapper_register('quota', 'OC\Files\Stream\Quota');
 		stream_wrapper_register('oc', 'OC\Files\Stream\OC');
-
 
 		\OC::$server->getEventLogger()->start('init_session', 'Initialize session');
 		self::initTemplateEngine();
